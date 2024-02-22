@@ -31,9 +31,9 @@ import (
 )
 
 const (
-	resourceName = "example.com/resource"
-	cdiPath      = "/var/run/cdi/example.com.json"
-	cdiVersion   = "0.3.0"
+	resourceName = "nvidia.com/GH100H100_SXM5_80GB"
+	cdiPath      = "/var/run/cdi/nvidia.yaml"
+	cdiVersion   = "0.6.0"
 	cdiPrefix    = "CDI-"
 )
 
@@ -53,29 +53,29 @@ func stubAllocFunc(r *pluginapi.AllocateRequest, devs map[string]pluginapi.Devic
 			}
 
 			// create fake device file
-			fpath := filepath.Join("/tmp", dev.ID)
+			//fpath := filepath.Join("/tmp", dev.ID)
 
 			// clean first
-			if err := os.RemoveAll(fpath); err != nil {
-				return nil, fmt.Errorf("failed to clean fake device file from previous run: %s", err)
-			}
+			///if err := os.RemoveAll(fpath); err != nil {
+			//	return nil, fmt.Errorf("failed to clean fake device file from previous run: %s", err)
+			//}
 
-			f, err := os.Create(fpath)
-			if err != nil && !os.IsExist(err) {
-				return nil, fmt.Errorf("failed to create fake device file: %s", err)
-			}
+			//f, err := os.Create(fpath)
+			//if err != nil && !os.IsExist(err) {
+			//	return nil, fmt.Errorf("failed to create fake device file: %s", err)
+			//}
 
-			f.Close()
+			//f.Close()
 
-			response.Mounts = append(response.Mounts, &pluginapi.Mount{
-				ContainerPath: fpath,
-				HostPath:      fpath,
-			})
+			//response.Mounts = append(response.Mounts, &pluginapi.Mount{
+			//	ContainerPath: fpath,
+			//	HostPath:      fpath,
+			//})
 
 			if os.Getenv("CDI_ENABLED") != "" {
 				// add the CDI device ID to the response.
 				cdiDevice := &pluginapi.CDIDevice{
-					Name: fmt.Sprintf("%s=%s", resourceName, cdiPrefix+dev.ID),
+					Name: fmt.Sprintf("%s=%s", resourceName, dev.ID),
 				}
 				response.CDIDevices = append(response.CDIDevices, cdiDevice)
 			}
@@ -97,8 +97,14 @@ func main() {
 	signal.Notify(sigCh, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	devs := []*pluginapi.Device{
-		{ID: "Dev-1", Health: pluginapi.Healthy},
-		{ID: "Dev-2", Health: pluginapi.Healthy},
+		{ID: "0", Health: pluginapi.Healthy},
+		{ID: "1", Health: pluginapi.Healthy},
+		{ID: "2", Health: pluginapi.Healthy},
+		{ID: "3", Health: pluginapi.Healthy},
+		{ID: "4", Health: pluginapi.Healthy},
+		{ID: "5", Health: pluginapi.Healthy},
+		{ID: "6", Health: pluginapi.Healthy},
+		{ID: "7", Health: pluginapi.Healthy},
 	}
 
 	pluginSocksDir := os.Getenv("PLUGIN_SOCK_DIR")
@@ -231,15 +237,42 @@ func handleRegistrationProcess(registerControlFile string, dpStub *plugin.Stub, 
 }
 
 func createCDIFile(devs []*pluginapi.Device) error {
-	content := fmt.Sprintf(`{"cdiVersion":"%s","kind":"%s","devices":[`, cdiVersion, resourceName)
-	for i, dev := range devs {
-		name := cdiPrefix + dev.ID
-		content += fmt.Sprintf(`{"name":"%s","containerEdits":{"env":["CDI_DEVICE=%s"],"deviceNodes":[{"path":"/tmp/%s","type":"b","major":1,"minor":%d}]}}`, name, name, name, i)
-		if i < len(devs)-1 {
-			content += ","
-		}
-	}
-	content += "]}"
+	content := fmt.Sprintf("cdiVersion: %s\n", cdiVersion)
+	content += fmt.Sprintf("kind: %s\n", resourceName)
+	content += "devices:\n"
+	content += "- name: 0\n"
+	content += "  containerEdits:\n"
+	content += "    deviceNodes:\n"
+	content += "    - path: /dev/vfio/16\n"
+	content += "- name: 1\n"
+	content += "  containerEdits:\n"
+	content += "    deviceNodes:\n"
+	content += "    - path: /dev/vfio/25\n"
+	content += "- name: 2\n"
+	content += "  containerEdits:\n"
+	content += "    deviceNodes:\n"
+	content += "    - path: /dev/vfio/34\n"
+	content += "- name: 3\n"
+	content += "  containerEdits:\n"
+	content += "    deviceNodes:\n"
+	content += "    - path: /dev/vfio/67\n"
+	content += "- name: 4\n"
+	content += "  containerEdits:\n"
+	content += "    deviceNodes:\n"
+	content += "    - path: /dev/vfio/89\n"
+	content += "- name: 5\n"
+	content += "  containerEdits:\n"
+	content += "    deviceNodes:\n"
+	content += "    - path: /dev/vfio/98\n"
+	content += "- name: 6\n"
+	content += "  containerEdits:\n"
+	content += "    deviceNodes:\n"
+	content += "    - path: /dev/vfio/107\n"
+	content += "- name: 7\n"
+	content += "  containerEdits:\n"
+	content += "    deviceNodes:\n"
+	content += "    - path: /dev/vfio/140\n"
+
 	if err := os.WriteFile(cdiPath, []byte(content), 0644); err != nil {
 		return fmt.Errorf("failed to create CDI file: %s", err)
 	}

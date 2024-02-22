@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG BASEIMAGE
-FROM $BASEIMAGE
+FROM ubuntu
 ADD sampledeviceplugin /sampledeviceplugin
+ENV CDI_ENABLED=true
 ENTRYPOINT ["/sampledeviceplugin", "-alsologtostderr"]

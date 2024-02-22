@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SRCS=sampledeviceplugin
-OS ?= linux
-ARCH ?= amd64
-TARGET ?= $(CURDIR)
-GOARM ?= 7
-GOLANG_VERSION ?= latest
-SRC_DIR = $(notdir $(shell pwd))
-export
 
 bin:
-	../image-util.sh bin $(SRCS)
+	go build . 
+	docker build . -t ghcr.io/zvonkok/sample-device-plugin
+	docker push ghcr.io/zvonkok/sample-device-plugin
 
+run: 
+	kubectl delete -f sample-device-plugin.yaml
+	kubectl apply -f sample-device-plugin.yaml
+	sleep 5
+	kubectl logs -f $(kubectl get pods --no-headers=true -o name | awk -F "/" '{print $2}'| grep sample)
 .PHONY: bin
