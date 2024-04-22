@@ -13,6 +13,6 @@
 # limitations under the License.
 
 FROM ubuntu
-ADD sampledeviceplugin /sampledeviceplugin
+ADD sample-device-plugin /sampledeviceplugin
 ENV CDI_ENABLED=true
 ENTRYPOINT ["/sampledeviceplugin", "-alsologtostderr"]

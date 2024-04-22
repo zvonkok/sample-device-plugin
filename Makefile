@@ -15,8 +15,8 @@
 
 bin:
 	go build . 
-	docker build . -t ghcr.io/zvonkok/sample-device-plugin
-	docker push ghcr.io/zvonkok/sample-device-plugin
+	docker build . -t quay.io/redhat_z92c6/sample-device-plugin
+	docker push quay.io/redhat_z92c6/sample-device-plugin
 
 run: 
 	kubectl delete -f sample-device-plugin.yaml

@@ -35,7 +35,7 @@ spec:
           path: /var/run/cdi
       
       containers:
-      - image: ghcr.io/zvonkok/sample-device-plugin:latest
+      - image: quay.io/redhat_z92c6/sample-device-plugin:latest
         imagePullPolicy: Always
         name: sample-device-plugin
         env:
